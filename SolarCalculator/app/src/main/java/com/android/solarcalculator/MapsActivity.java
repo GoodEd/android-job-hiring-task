@@ -14,6 +14,7 @@ import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,6 +33,7 @@ import com.google.android.gms.tasks.Task;
 
 import org.shredzone.commons.suncalc.MoonTimes;
 import org.shredzone.commons.suncalc.SunTimes;
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -49,6 +51,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String API_KEY = BuildConfig.Api_Key;
 
     private FusedLocationProviderClient mFusedLocationClient;
+
+    private TextView tv1,sr,ss,mr,ms;
+    private ImageView b1,b2,b3;
 
     //permission variable
     private Boolean mLocationPermissionsGranted = false;
@@ -69,6 +74,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
 
         msearchlocation = (EditText) findViewById(R.id.search_location);
+        tv1 = (TextView) findViewById(R.id.tv1);
+        b1 = (ImageView) findViewById(R.id.b1);
+        b2 = (ImageView) findViewById(R.id.b2);
+        b3 = (ImageView) findViewById(R.id.b3);
+
+        sr = (TextView) findViewById(R.id.sr);
+        ss = (TextView) findViewById(R.id.ss);
+        mr = (TextView) findViewById(R.id.mr);
+        ms = (TextView) findViewById(R.id.ms);
 
 
         //getLocationpermission
@@ -146,10 +160,49 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.d(TAG, "moonrise: " + moonTimes.getRise());
             Log.d(TAG, "moonset: " + moonTimes.getSet());
 
+            tv1.setText(dstring);
+
+            String temp = "";
+            String srise = suntimes.getRise().toString();
+            temp = getTime(srise);
+            sr.setText(temp);
+            String sset = suntimes.getSet().toString();
+            temp = getTime(sset);
+            ss.setText(temp);
+            String mrise = moonTimes.getRise().toString();
+            temp = getTime(mrise);
+            mr.setText(temp);
+            String mset = moonTimes.getSet().toString();
+            temp = getTime(mset);
+            ms.setText(temp);
+
+
+
+
+
+
+            Log.d(TAG, "Only Time" + temp);
+
+
 
 
             moveCamera(new LatLng(address.getLatitude(), address.getLongitude()),DEFAULT_ZOOM, address.getAddressLine(0));
         }
+
+    }
+
+    private String getTime(String srise) {
+
+        String sdf= "hh:mm:ss";
+        Date date2 = new Date();
+        String[] temp = srise.split(" ");
+        SimpleDateFormat objsdf = new SimpleDateFormat("hh:mm:ss");
+        try {
+            date2 = objsdf.parse(srise);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return temp[3];
 
     }
 
@@ -256,6 +309,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             mMap.addMarker(markerOptions);
         }
+
+
         hidekeyboard();
     }
 
