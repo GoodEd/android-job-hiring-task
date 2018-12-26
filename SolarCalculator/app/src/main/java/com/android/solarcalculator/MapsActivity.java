@@ -1,6 +1,8 @@
 package com.android.solarcalculator;
 
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -8,6 +10,11 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -23,11 +30,23 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import org.shredzone.commons.suncalc.MoonTimes;
+import org.shredzone.commons.suncalc.SunTimes;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
 
     private static final String TAG = "Mapactivity";
+
+    private static final String API_KEY = BuildConfig.Api_Key;
 
     private FusedLocationProviderClient mFusedLocationClient;
 
@@ -41,15 +60,97 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String COURSE_LOCATION = android.Manifest.permission.ACCESS_COARSE_LOCATION;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
 
+    //widgets
+    private EditText msearchlocation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        msearchlocation = (EditText) findViewById(R.id.search_location);
+
+
         //getLocationpermission
         getLocationPermission();
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+    }
+
+
+    private void init(){
+        Log.d(TAG, "init: initializing");
+
+        msearchlocation.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+                if(actionId == EditorInfo.IME_ACTION_GO
+                        || actionId == EditorInfo.IME_ACTION_DONE
+                        || keyEvent.getAction() == KeyEvent.ACTION_DOWN
+                        || keyEvent.getAction() == KeyEvent.KEYCODE_ENTER
+                        || keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER){
+
+                    //execute our method for searching
+                    geolocate();
+                }
+
+                return false;
+            }
+        });
+
+        hidekeyboard();
+
+        }
+
+
+    private void geolocate() {
+
+        String location = msearchlocation.getText().toString();
+
+        Geocoder geocoder = new Geocoder(MapsActivity.this);
+        List<Address> list = new ArrayList<>();
+
+        try{
+            list = geocoder.getFromLocationName(location, 1);
+
+        }catch (IOException e){
+            Log.e(TAG, "IO exception" + e.getMessage());
+        }
+
+        if(list.size() > 0){
+            Address address = list.get(0);
+            Log.d(TAG, address.toString());
+
+
+            Date date = new Date();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            Toast.makeText(getApplicationContext(), dateFormat.format(date), Toast.LENGTH_SHORT).show();
+
+            double lati = address.getLatitude();
+            double longi = address.getLongitude();
+
+            String dstring = dateFormat.format(date);
+            Date date1 = new Date();
+            try {
+                date1 =(Date) dateFormat.parse(dstring);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            SunTimes suntimes = SunTimes.compute()
+                    .on(date1).at(lati, longi).execute();
+            Log.d(TAG, "sunrise: " + suntimes.getRise());
+            Log.d(TAG, "sunset: " + suntimes.getSet());
+
+            MoonTimes moonTimes = MoonTimes.compute()
+                    .on(date1).at(lati, longi).execute();
+            Log.d(TAG, "moonrise: " + moonTimes.getRise());
+            Log.d(TAG, "moonset: " + moonTimes.getSet());
+
+
+
+            moveCamera(new LatLng(address.getLatitude(), address.getLongitude()),DEFAULT_ZOOM, address.getAddressLine(0));
+        }
+
     }
 
     private void getLocationPermission() {
@@ -101,8 +202,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return;
             }
             mMap.setMyLocationEnabled(true);
-            mMap.getUiSettings().setCompassEnabled(true);
-            mMap.getUiSettings().setMyLocationButtonEnabled(true);
+            mMap.getUiSettings().setMyLocationButtonEnabled(false);
+
+            init();
+
         }
         // Add a marker in Sydney and move the camera
 //        LatLng sydney = new LatLng(-34, 151);
@@ -126,7 +229,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     Log.d(TAG, "location found");
                                     Location currLocation = (Location) task.getResult();
 
-                                    moveCamera(new LatLng(currLocation.getLatitude(), currLocation.getLongitude()),DEFAULT_ZOOM);
+                                    moveCamera(new LatLng(currLocation.getLatitude(), currLocation.getLongitude()),DEFAULT_ZOOM, "My Location");
                                 }
                                 else {
                                     Log.d(TAG, "location is not found");
@@ -142,8 +245,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     //moving the camera to current location
-    private void moveCamera(LatLng latLng, float zoom){
+    private void moveCamera(LatLng latLng, float zoom,String title){
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));
+
+        //for pindrop
+        if(!title.equals("My Location")) {
+            MarkerOptions markerOptions = new MarkerOptions()
+                    .position(latLng)
+                    .title(title);
+
+            mMap.addMarker(markerOptions);
+        }
+        hidekeyboard();
     }
 
     @Override
@@ -168,5 +281,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         }
+    }
+
+    public void hidekeyboard(){
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 }
