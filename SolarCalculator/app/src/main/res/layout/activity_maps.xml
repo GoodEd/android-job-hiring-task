@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/map"
+    android:name="com.google.android.gms.maps.SupportMapFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MapsActivity" />
+    
+    <RelativeLayout
+        android:id="@+id/rl1"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:elevation="1dp"
+        android:background="@drawable/border">
+
+        <ImageView
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:id="@+id/ic_search"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/ic_search"/>
+
+        <EditText
+            android:id="@+id/search_location"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@+id/ic_search"
+            android:layout_centerVertical="true"
+            android:textSize="15sp"
+            android:textColor="#000000"
+            android:paddingLeft="5dp"
+            android:background="@null"
+            android:imeOptions="actionGo"
+            android:hint="Enter Location "/>
+
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/pin"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_pin"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_below="@id/rl1"
+        android:layout_width="30dp"
+        android:layout_height="30dp" />
+
+    <ImageView
+        android:id="@+id/saved_pins"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_saved_pins"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="10dp"
+        android:layout_below="@id/rl1"
+        android:layout_width="30dp"
+        android:layout_height="30dp" />
+
+
+    <ImageView
+        android:layout_alignParentRight="true"
+        android:id="@+id/gps"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_gps"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_below="@id/rl1"
+        android:layout_width="30dp"
+        android:layout_height="30dp" />
+
+    <RelativeLayout
+        android:id="@+id/rl"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:background="@drawable/border"
+        android:elevation="1dp"
+        android:layout_width="match_parent"
+        android:layout_height="200dp">
+
+        <LinearLayout
+            android:id="@+id/ll1"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:padding="20dp"
+            android:layout_height="70dp">
+
+            <TextView
+                android:layout_weight="1"
+                android:text="Sunrise"
+                android:textSize="15sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/sr"
+                android:layout_weight="1"
+                android:text=""
+                android:textSize="15sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+
+            <TextView
+                android:layout_weight="1"
+                android:textSize="15sp"
+                android:text="Sunset"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/ss"
+                android:layout_weight="1"
+                android:text=""
+                android:textSize="15sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll2"
+            android:layout_below="@+id/ll1"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:padding="20dp"
+            android:layout_height="70dp">
+
+            <TextView
+                android:layout_weight="1"
+                android:text="Moonrise"
+                android:textSize="15sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/mr"
+                android:layout_weight="1"
+                android:text=""
+                android:textSize="15sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+
+            <TextView
+                android:layout_marginLeft="5dp"
+                android:layout_weight="1"
+                android:textSize="15sp"
+                android:text="Moonset"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/ms"
+                android:layout_weight="1"
+                android:text=""
+                android:textSize="15sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/v1"
+            android:layout_below="@+id/ll2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:background="#C0C0C0"></View>
+
+
+        <TextView
+            android:layout_marginTop="2dp"
+            android:id="@+id/tv1"
+            android:layout_below="@+id/v1"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:id="@+id/b1"
+            android:layout_below="@+id/tv1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/b3"
+            android:layout_marginLeft="20dp"
+            android:src="@drawable/ic_forward"/>
+
+        <ImageView
+            android:id="@+id/b2"
+            android:src="@drawable/ic_backward"
+            android:layout_below="@+id/tv1"
+            android:layout_marginRight="20dp"
+            android:layout_toLeftOf="@id/b3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <ImageView
+            android:id="@+id/b3"
+            android:layout_below="@+id/tv1"
+            android:src="@drawable/ic_play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>
