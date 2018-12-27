@@ -2,6 +2,8 @@ package com.android.solarcalculator;
 
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -20,6 +22,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.solarcalculator.Database.DatabaseHelper;
+import com.android.solarcalculator.Database.PinLocations;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
@@ -49,6 +53,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
 
+
+
     private static final String TAG = "Mapactivity";
 
     private static final String API_KEY = BuildConfig.Api_Key;
@@ -56,7 +62,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private FusedLocationProviderClient mFusedLocationClient;
 
     private TextView tv1,sr,ss,mr,ms;
-    private ImageView b1,b2,b3,gps;
+    private ImageView b1,b2,b3,gps,pin,spin;
 
     //permission variable
     private Boolean mLocationPermissionsGranted = false;
@@ -64,6 +70,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final float DEFAULT_ZOOM = 15f;
 
     Date date = new Date();
+
+    private long c = 0;
 
 
     private static final String FINE_LOCATION = android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -75,6 +83,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public ProgressDialog progressDialog;
 
+    DatabaseHelper db;
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -85,6 +95,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        db = new DatabaseHelper(this);
+
         msearchlocation = (EditText) findViewById(R.id.search_location);
         tv1 = (TextView) findViewById(R.id.tv1);
         b1 = (ImageView) findViewById(R.id.b1);
@@ -92,6 +104,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         b3 = (ImageView) findViewById(R.id.b3);
 
         gps = (ImageView) findViewById(R.id.gps);
+
+        pin = (ImageView) findViewById(R.id.pin);
+
+        spin = (ImageView) findViewById(R.id.saved_pins);
 
         sr = (TextView) findViewById(R.id.sr);
         ss = (TextView) findViewById(R.id.ss);
@@ -177,7 +193,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             String dstring = dateFormat.format(date);
 
-            settingtime(lati, longi, dstring); //setting the time
+            settingtime(lati, longi, dstring, address.getAddressLine(0)); //setting the time
 
 //
 //
@@ -289,7 +305,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 //                                    String fdate =
 
-                                    settingtime(currLocation.getLatitude(),currLocation.getLongitude(), sysdate);
+                                    settingtime(currLocation.getLatitude(),currLocation.getLongitude(), sysdate, "My Location");
 
                                     moveCamera(new LatLng(currLocation.getLatitude(), currLocation.getLongitude()),DEFAULT_ZOOM, "My Location");
                                 }
@@ -306,7 +322,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    private void settingtime(final double latitude, final double longitude, String sysdate) {
+    private void settingtime(final double latitude, final double longitude, String sysdate, final String locs) {
 
 //        progressDialog.show();
 //        progressDialog.setMessage("Please wait...");
@@ -545,6 +561,67 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
 
+        pin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(c>0) {
+                    Cursor dbdata = db.getd(Double.toString(latitude), Double.toString(longitude));
+                    if (dbdata.moveToFirst()) {
+//                        Toast.makeText(getApplicationContext(), "Nothing Exists ", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Exists", Toast.LENGTH_SHORT).show();
+
+                    } else {
+//
+                        boolean insertdata = db.addData(Double.toString(latitude),Double.toString(longitude), locs);
+
+                        if(insertdata){
+                            Toast.makeText(getApplicationContext(), "Data insert Successfully", Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                }
+
+                if(c==0) {
+                    boolean insertdata = db.addData(Double.toString(latitude), Double.toString(longitude), locs);
+
+                    if (insertdata) {
+                        Toast.makeText(getApplicationContext(), "Data insert Successfully", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                c++;
+            }
+        });
+
+
+        spin.setOnClickListener(new View.OnClickListener() {
+
+            ArrayList<String> list = new ArrayList<>();
+
+            @Override
+            public void onClick(View v) {
+
+                Cursor data = db.getData();
+
+                if (data.getCount() == 0) {
+                    Toast.makeText(getApplicationContext(), "No saved locations ", Toast.LENGTH_SHORT).show();
+                } else {
+//                    while (data.moveToNext()) {
+//                        list.add(data.getString(1));
+//                    }
+                    Toast.makeText(getApplicationContext(), "Record in table is  " + data.getCount(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+
+
+
         SunTimes suntimes = SunTimes.compute()
                 .on(date2).at(latitude, longitude).execute();
         Log.d(TAG, "sunrise2: " + suntimes.getRise());
@@ -555,7 +632,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d(TAG, "moonrise2: " + moonTimes.getRise());
         Log.d(TAG, "moonset2: " + moonTimes.getSet());
 
-//        tv1.setText(checkdate);
+        tv1.setText(checkd);
 
         String temp = "";
         String srise = suntimes.getRise().toString();
@@ -579,6 +656,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 //        Log.d(TAG, "Only Time" + temp);
+
+//        pin.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                boolean insertdata = db.addData(Double.toString(latitude),Double.toString(longitude));
+//
+//                if(insertdata){
+//                    Toast.makeText(getApplicationContext(), "Data insert Successfully", Toast.LENGTH_SHORT).show();
+//                }
+//                else {
+//                    Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
+
+
+
+
+
 
 
     }

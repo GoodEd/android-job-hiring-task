@@ -47,6 +47,28 @@
     </RelativeLayout>
 
     <ImageView
+        android:id="@+id/pin"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_pin"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_below="@id/rl1"
+        android:layout_width="30dp"
+        android:layout_height="30dp" />
+
+    <ImageView
+        android:id="@+id/saved_pins"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_saved_pins"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="10dp"
+        android:layout_below="@id/rl1"
+        android:layout_width="30dp"
+        android:layout_height="30dp" />
+
+
+    <ImageView
         android:layout_alignParentRight="true"
         android:id="@+id/gps"
         android:scaleType="centerCrop"
