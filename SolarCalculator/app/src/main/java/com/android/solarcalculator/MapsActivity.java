@@ -56,7 +56,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private FusedLocationProviderClient mFusedLocationClient;
 
     private TextView tv1,sr,ss,mr,ms;
-    private ImageView b1,b2,b3;
+    private ImageView b1,b2,b3,gps;
 
     //permission variable
     private Boolean mLocationPermissionsGranted = false;
@@ -90,6 +90,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         b1 = (ImageView) findViewById(R.id.b1);
         b2 = (ImageView) findViewById(R.id.b2);
         b3 = (ImageView) findViewById(R.id.b3);
+
+        gps = (ImageView) findViewById(R.id.gps);
 
         sr = (TextView) findViewById(R.id.sr);
         ss = (TextView) findViewById(R.id.ss);
@@ -133,6 +135,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
 
+        gps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "default location gpsOnclick ");
+                getDeviceLocation();
+            }
+        });
 
         hidekeyboard();
 
@@ -615,7 +624,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    public void hidekeyboard(){
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    private void hidekeyboard(){
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 }
