@@ -168,6 +168,7 @@
             android:layout_toRightOf="@id/b3"
             android:layout_marginLeft="20dp"
             android:src="@drawable/ic_forward"/>
+
         <ImageView
             android:id="@+id/b2"
             android:src="@drawable/ic_backward"
